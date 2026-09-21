@@ -1,3 +1,4 @@
+import { Value } from './../../../node_modules/regjsparser/parser.d';
 import { Component, computed, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import {
@@ -10,7 +11,7 @@ import {
 // FormGroup agrupa los FormControl del formulario.
 // FormControl representa cada campo individual.
 // ReactiveFormsModule habilita las directivas [formGroup] y formControlName en el HTML.
-import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
+import { ReactiveFormsModule, FormGroup, FormControl, Validators, FormBuilder } from '@angular/forms';
 import { Elemento } from '../models/elemento.model';
 
 @Component({
@@ -28,6 +29,7 @@ import { Elemento } from '../models/elemento.model';
 })
 export class HomePage {
 
+  private fb = inject(FormBuilder);
   busqueda = signal<string>('');
 
   elementos = signal<Elemento[]>([
@@ -37,6 +39,7 @@ export class HomePage {
     { id: 4, nombre: 'Node.js', descripcion: 'Entorno de ejecución de JS en servidor', categoria: 'Backend' },
     { id: 5, nombre: 'Capacitor', descripcion: 'Puente nativo para apps Ionic', categoria: 'Mobile' },
   ]);
+
 
 
   hayElementos = computed<boolean>(() => this.elementos().length > 0);
@@ -56,6 +59,15 @@ export class HomePage {
   private toastController = inject(ToastController);
 
   // TODO TA05 – FormGroup: agrupa los campos del formulario.
+
+formElementos: FormGroup = this.fb.group(
+  {
+    nombre:      ['', [Validators.required, Validators.minLength(3)]],
+    descripcion: ['', [Validators.required]],
+    categoria:   ['']
+  }
+)
+
   // Validators.required marca el campo como obligatorio.
   // Validators.minLength(3) exige un mínimo de caracteres.
   
@@ -65,7 +77,28 @@ export class HomePage {
   // TODO TA05 – Leer los valores del formulario con .value y añadir el nuevo elemento al signal.
   // elements.update() recibe la lista actual y devuelve una nueva lista con el elemento añadido.
   // Al final reseteamos el formulario con .reset() para dejarlo vacío.
+
+ 
   agregarElemento(): void {
+    // si el form no es válido
+    if (this.formElementos.invalid) {
+      // notificar al usuario
+      this.formElementos.markAllAsTouched();
+      return;
+    } else {
+      const { nombre, descripcion, categoria } = this.formElementos.value;
+
+  const nuevoElemento: Elemento = {
+      id: Date.now(),
+      nombre: (nombre ?? '').trim(),
+      descripcion: (descripcion ?? '').trim(),
+      categoria: (categoria ?? '').trim()
+    };
+  
+     this.elementos.update(u => ([ ...u, nuevoElemento]));
+     console.log(this.elementos());
+     this.formElementos.reset();
+    }
     // TODO: Si el formulario no es válido, marcamos todos los campos como tocados
     // para que Angular muestre los errores en el HTML y salimos.
 
@@ -92,7 +125,7 @@ export class HomePage {
 
   async mostrarToast(): Promise<void> {
     const toast = await this.toastController.create({
-      message: 'Lista de tecnologías cargada correctamente',
+      message: 'El formulario no puede estar vacío',
       duration: 2000,
       position: 'bottom'
     });

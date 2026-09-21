@@ -5,14 +5,11 @@
 
 <ion-header [translucent]="true">
   <ion-toolbar>
-    <ion-title>
-       Mi Aplicación
-    </ion-title>
+    <ion-title> Mi Aplicación </ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true">
-
   <!-- ===== TODO TA05 – Formulario reactivo ===================================
        [formGroup] enlaza el <form> con el FormGroup definido en el componente.
        (ngSubmit) se dispara al pulsar el botón de tipo "submit".
@@ -25,18 +22,38 @@
 
     <ion-card-content>
       <!-- TODO Añadimos [formGroup] al formulario y le asignamos nuestro FormGroup -->
-      <form>
+      <form [formGroup]="formElementos" (ngSubmit)="agregarElemento()">
+        <ion-label>Nombre*</ion-label>
+        <ion-input
+          type="text"
+          placeholder="Escribe el nombre del item"
+          formControlName="nombre"
+        ></ion-input>
+        <ion-label>Descripción*</ion-label>
+        <ion-input
+          type="text"
+          placeholder="Escribe la descripción del item"
+          formControlName="descripcion"
+        ></ion-input>
+        <ion-label>Categoría*</ion-label>
+        <ion-input
+          type="text"
+          placeholder="Escribe la categoría del item"
+          formControlName="categoria"
+        ></ion-input>
 
         <!-- TODO TA05: formControlName="nombre" enlaza este input con
              el FormControl "nombre" del FormGroup.
              Al escribir, el FormControl se actualiza automáticamente. -->
 
         <!-- TODO TA05: Al igual que con el nombre lo hacemos para "descripcion" -->
-        
+
         <!-- TODO TA05: "categoria" es opcional en el modelo -->
 
         <!-- TODO TA05: type="submit" lanza (ngSubmit) del <form> -->
-
+        <ion-button type="submit" expand="block" fill="clear" shape="round">
+          Agregar elemento a la lista
+        </ion-button>
       </form>
     </ion-card-content>
   </ion-card>
@@ -45,24 +62,31 @@
   <hr class="separador" />
 
   <ion-item>
-    <ion-input [value]="busqueda()" (ionInput)="busqueda.set($event.detail.value ?? '')" placeholder="Buscar elemento..."></ion-input>
+    <ion-input
+      [value]="busqueda()"
+      (ionInput)="busqueda.set($event.detail.value ?? '')"
+      placeholder="Buscar elemento..."
+    ></ion-input>
   </ion-item>
 
   <ion-list>
     @for (elemento of elementosFiltrados(); track elemento.id) {
-      <ion-item button="true" (click)="verDetalle(elemento)">
-        <ion-label>
-          <h2>{{ elemento.nombre }}</h2>
-          <p>{{ elemento.descripcion }}</p>
-        </ion-label>
-      </ion-item>
+    <ion-item button="true" (click)="verDetalle(elemento)">
+      <ion-label>
+        <h2>{{ elemento.nombre }}</h2>
+        <p>{{ elemento.descripcion }}</p>
+      </ion-label>
+    </ion-item>
     }
   </ion-list>
 
-  <ion-button expand="block" [disabled]="!hayElementos()" (click)="mostrarToast()">
+  <ion-button
+    expand="block"
+    [disabled]="!hayElementos()"
+    (click)="mostrarToast()"
+  >
     Mostrar mensaje
   </ion-button>
-
 </ion-content>
 
 <ion-footer>
